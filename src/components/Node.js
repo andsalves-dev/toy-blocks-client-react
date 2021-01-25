@@ -14,6 +14,35 @@ import Status from "./Status";
 
 const Node = ({ node, expanded, toggleNodeExpanded }) => {
   const classes = useStyles();
+  const renderBlocks = () => {
+    if (node.error) {
+      return (
+        <Typography className={classes.errorMessage}>
+          Error while retrieving blocks
+        </Typography>
+      );
+    }
+
+    if (!node.blocks || node.blocks.length === 0) {
+      return (
+        <Typography className={classes.noBlocks}>
+          No blocks
+        </Typography>
+      );
+    }
+
+    return (
+      <ul className={classes.blockList}>
+        {node.blocks && node.blocks.map((block, key) => (
+          <li key={`${block.id}-${key}`} className={classes.blockItem} data-qa="blockItem">
+            <span>{String(block.id).padStart(3, '0')}</span>
+            <p>{block.text}</p>
+          </li>
+        ))}
+      </ul>
+    )
+  };
+
   return (
     <ExpansionPanel
       elevation={3}
@@ -46,7 +75,7 @@ const Node = ({ node, expanded, toggleNodeExpanded }) => {
         </Box>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails>
-        <Typography>Blocks go here</Typography>
+        {renderBlocks()}
       </ExpansionPanelDetails>
     </ExpansionPanel>
   );
@@ -96,6 +125,43 @@ const useStyles = makeStyles((theme) => ({
     color: colors.faded,
     lineHeight: 2,
   },
+
+  blockList: {
+    listStyle: 'none',
+    padding: '0',
+    width: '100%',
+  },
+
+  blockItem: {
+    padding: '4px 8px',
+    background: 'rgba(0, 0, 0, 0.12)',
+    marginBottom: '4px',
+    borderRadius: '2px',
+
+    "& p": {
+      margin: '0',
+      color: '#263238',
+      fontWeight: '400',
+      fontSize: '14px',
+    },
+
+    "& span": {
+      letterSpacing: '1px',
+      color: '#304FFE',
+      fontWeight: '700',
+      fontSize: '10px',
+    }
+  },
+
+  noBlocks: {
+    fontSize: '12px',
+    color: '#777',
+  },
+
+  errorMessage: {
+    fontSize: '14px',
+    color: 'red',
+  }
 }));
 
 Node.propTypes = {
@@ -104,6 +170,7 @@ Node.propTypes = {
     online: PropTypes.bool,
     name: PropTypes.string,
     loading: PropTypes.bool,
+    blocks: PropTypes.array,
   }).isRequired,
   expanded: PropTypes.bool,
   toggleNodeExpanded: PropTypes.func.isRequired,

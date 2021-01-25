@@ -1,7 +1,7 @@
 import * as ActionTypes from '../constants/actionTypes';
 import reducer from './nodes';
 import initialState from './initialState';
-
+import { buildResponseBlock } from '../utils/tests/buildResponseBlock';
 
 describe('Reducers::Nodes', () => {
   const getInitialState = () => {
@@ -85,6 +85,72 @@ describe('Reducers::Nodes', () => {
           online: false,
           name: 'alpha',
           loading: false
+        },
+        nodeB
+      ]
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
+  it('should handle FETCH_NODE_BLOCKS_START', () => {
+    const appState = {
+      list: [nodeA, nodeB]
+    };
+    const action = { type: ActionTypes.FETCH_NODE_BLOCKS_START, node: nodeA };
+    const expected = {
+      list: [
+        {
+          ...nodeA,
+          loading: true,
+          error: null,
+        },
+        nodeB
+      ]
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
+  it('should handle FETCH_NODE_BLOCKS_SUCCESS', () => {
+    const appState = {
+      list: [nodeA, nodeB]
+    };
+    const data = [ buildResponseBlock() ];
+
+    const action = { type: ActionTypes.FETCH_NODE_BLOCKS_SUCCESS, node: nodeA, data };
+    const expected = {
+      list: [
+        {
+          ...nodeA,
+          loading: false,
+          blocks: [
+            {
+              id: data[0].id,
+              text: data[0].attributes.data,
+            }
+          ],
+        },
+        nodeB
+      ]
+    };
+
+    expect(reducer(appState, action)).toEqual(expected);
+  });
+
+  it('should handle FETCH_NODE_BLOCKS_SUCCESS', () => {
+    const appState = {
+      list: [nodeA, nodeB]
+    };
+    const error = new Error();
+
+    const action = { type: ActionTypes.FETCH_NODE_BLOCKS_FAILURE, node: nodeA, error };
+    const expected = {
+      list: [
+        {
+          ...nodeA,
+          loading: false,
+          error,
         },
         nodeB
       ]
